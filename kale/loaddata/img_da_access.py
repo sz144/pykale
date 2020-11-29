@@ -23,12 +23,12 @@ transform_default = transforms.Compose([
 
 domain_info = {'pacs': (['art_painting', 'cartoon', 'photo', 'sketch'], 7),
                'vlcs': (['CALTECH', 'LABELME', 'PASSCAL', 'SUN'], 5),
-               'OfficeHome': (['Art', 'Clipart', 'Product', 'Real_World'], 65)}
+               'officehome': (['Art', 'Clipart', 'Product', 'Real_World'], 65)}
 
 
 class SingleDomainSet(DatasetAccess):
 
-    def __init__(self, data_path, use_data='PACS', domain='art_painting',
+    def __init__(self, data_path, use_data='pacs', domain='art_painting',
                  transform='default', test_size=0.2, random_state=144):
 
         if not os.path.exists(data_path):
@@ -60,7 +60,7 @@ class SingleDomainSet(DatasetAccess):
         self.test_size = test_size
 
         # random split train test partition for PACS and OfficeHome dataset
-        if self.use_data != 'VLCS':
+        if self.use_data != 'vlcs':
             self._dataset = ImageFolder(self.data_folder, transform=self.transform)
 
             torch.manual_seed(random_state)
@@ -70,7 +70,7 @@ class SingleDomainSet(DatasetAccess):
             self.train, self.test = random_split(self._dataset, [n_train, n_test])
 
     def get_train(self):
-        if self.use_data == 'VLCS':
+        if self.use_data == 'vlcs':
             train_folder = os.path.join(self.data_folder, 'full')
             self.train = ImageFolder(train_folder, transform=self.transform)
 
@@ -101,7 +101,8 @@ class MultiAccess(DatasetAccess):
             if d not in domain_list:
                 print('Invalid target domain')
                 sys.exit()
-            self.data_[d] = SingleDomainSet(data_path, domain=d, transform=transform, **kwargs)
+            self.data_[d] = SingleDomainSet(data_path, use_data=use_data, domain=d,
+                                            transform=transform, **kwargs)
 
     def get_train(self):
         train_list = []
