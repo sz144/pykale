@@ -1,7 +1,7 @@
 DAN:
   METHOD: 'CDAN'
 DATASET:
-  ROOT: '/shared/tale2/Shared/data/PACS/raw'
-  SOURCE: ['cartoon', 'photo', 'sketch']
-  TARGET: ['art_painting']
+  ROOT: '/shared/tale2/Shared/data/OfficeHome'
+  SOURCE: ['Real_World', 'Clipart', 'Product']
+  TARGET: ['Art']
   NUM_REPEAT: 5

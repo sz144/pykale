@@ -1,7 +1,0 @@
-DAN:
-  METHOD: 'DANN'
-DATASET:
-  ROOT: '/shared/tale2/Shared/data/PACS/raw'
-  SOURCE: ['art_painting', 'cartoon', 'photo']
-  TARGET: ['sketch']
-  NUM_REPEAT: 1
