@@ -1,0 +1,10 @@
+DAN:
+  METHOD: 'CDAN'
+DATASET:
+  NAME: 'officehome'
+  ROOT: '/media/shuoz/MyDrive/data/OfficeHome'
+  SOURCE: ['Art', 'Clipart', 'Product']
+  TARGET: ['Real_World']
+  NUM_REPEAT: 5
+OUTPUT:
+  ROOT: './output'
