@@ -1,6 +1,7 @@
 DAN:
   METHOD: 'DANN'
 DATASET:
+  NAME: 'officehome'
   ROOT: '/shared/tale2/Shared/data/OfficeHome'
   SOURCE: ['Real_World', 'Clipart', 'Product']
   TARGET: ['Art']

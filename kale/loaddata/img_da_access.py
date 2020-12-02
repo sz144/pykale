@@ -77,7 +77,7 @@ class SingleDomainSet(DatasetAccess):
         return self.train
 
     def get_test(self):
-        if self.use_data == 'VLCS':
+        if self.use_data == 'vlcs':
             test_folder = os.path.join(self.data_folder, 'test')
             self.test = ImageFolder(test_folder, transform=self.transform)
 
