@@ -7,6 +7,7 @@ import os
 import sys
 # from abc import ABC
 from .dataset_access import DatasetAccess
+from ..prepdata.image_transform import get_transform
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from torch.utils.data import DataLoader, random_split, ConcatDataset
@@ -45,7 +46,9 @@ class SingleDomainSet(DatasetAccess):
         # self.domain = domain.lower()
         self.domain = domain
         self.data_folder = os.path.join(data_path, self.domain)
-        if transform == 'default':
+        if use_data == 'officehome':
+            self.transform = get_transform(kind='office')
+        elif transform == 'default':
             # self._transform = transforms.Compose([
             #     transforms.ToTensor(),
             #     transforms.Normalize(
