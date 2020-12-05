@@ -35,13 +35,13 @@ class SingleDomainSet(DatasetAccess):
         if not os.path.exists(data_path):
             print('Data path \'%s\' does not' % data_path)
             sys.exit()
-        domain_list, self.n_class = domain_info[use_data]
+        domain_list, n_class = domain_info[use_data]
         self.use_data = use_data
 
         if domain not in domain_list:
             print('Invalid domain')
             sys.exit()
-        super().__init__(n_classes=self.n_class)
+        super().__init__(n_classes=n_class)
 
         # self.domain = domain.lower()
         self.domain = domain
