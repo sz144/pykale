@@ -35,7 +35,7 @@ def arg_parse():
 
 
 def main():
-    """The main for this domain adapation example, showing the workflow"""
+    """The main for this domain adaption example, showing the workflow"""
     args = arg_parse()
     
     # ---- setup configs ----

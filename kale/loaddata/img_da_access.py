@@ -1,20 +1,22 @@
 """
-Digits dataset (source and target domain) loading for MNIST, SVHN, MNIST-M (modified MNIST), and USPS. The code is based on 
+Dataset (source and target domain) loading object for the following object classification datasets:
+PACS, VLCS, Office_Home, and Office_Caltech
+The code is based on
 https://github.com/criteo-research/pytorch-ada/blob/master/adalib/ada/datasets/digits_dataset_access.py
 """
 
 import os
 import sys
-# from abc import ABC
 from .dataset_access import DatasetAccess
 from ..prepdata.image_transform import get_transform
 from torchvision.datasets import ImageFolder
 from torchvision import transforms
-from torch.utils.data import DataLoader, random_split, ConcatDataset
+from torch.utils.data import random_split, ConcatDataset
 import torch
 
 
-transform_default = transforms.Compose([
+# default image transform
+TF_DEFAULT = transforms.Compose([
     transforms.ToTensor(),
     transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
@@ -22,9 +24,10 @@ transform_default = transforms.Compose([
     ])
 
 
-domain_info = {'pacs': (['art_painting', 'cartoon', 'photo', 'sketch'], 7),
+DOMAIN_DICT = {'pacs': (['art_painting', 'cartoon', 'photo', 'sketch'], 7),
                'vlcs': (['CALTECH', 'LABELME', 'PASSCAL', 'SUN'], 5),
-               'officehome': (['Art', 'Clipart', 'Product', 'Real_World'], 65)}
+               'officehome': (['Art', 'Clipart', 'Product', 'Real_World'], 65),
+               'office_caltech': (['amazon', 'caltech', 'dslr', 'webcam'], 10)}
 
 
 class SingleDomainSet(DatasetAccess):
@@ -35,7 +38,7 @@ class SingleDomainSet(DatasetAccess):
         if not os.path.exists(data_path):
             print('Data path \'%s\' does not' % data_path)
             sys.exit()
-        domain_list, n_class = domain_info[use_data]
+        domain_list, n_class = DOMAIN_DICT[use_data]
         self.use_data = use_data
 
         if domain not in domain_list:
@@ -49,13 +52,7 @@ class SingleDomainSet(DatasetAccess):
         if use_data == 'officehome':
             self.transform = get_transform(kind='office')
         elif transform == 'default':
-            # self._transform = transforms.Compose([
-            #     transforms.ToTensor(),
-            #     transforms.Normalize(
-            #         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-            #     ),
-            # ])
-            self.transform = transform_default
+            self.transform = TF_DEFAULT
         else:
             self.transform = transform
 
@@ -90,19 +87,12 @@ class SingleDomainSet(DatasetAccess):
 class MultiAccess(DatasetAccess):
 
     def __init__(self, data_path, use_data, domains, transform='default', **kwargs):
-        # super().__init__(n_classes=7)
-        # domain_info = {'pacs': (['art_painting', 'cartoon', 'photo', 'sketch'],
-        #                         PACSSet, 7),
-        #                'vlcs': (['CALTECH', 'LABELME', 'PASSCAL', 'SUN'],
-        #                         VLCSSet, 5),
-        #                'OfficeHome': (['Art', 'Clipart', 'Product', 'Real_World'],
-        #                               OfficeHomeSet, 65)}
-        domain_list, n_class = domain_info[use_data]
+        domain_list, n_class = DOMAIN_DICT[use_data]
         super().__init__(n_classes=n_class)
         self.data_ = dict()
         for d in domains:
             if d not in domain_list:
-                print('Invalid target domain')
+                print('Invalid domain')
                 sys.exit()
             self.data_[d] = SingleDomainSet(data_path, use_data=use_data, domain=d,
                                             transform=transform, **kwargs)
@@ -144,7 +134,7 @@ class MultiAccess(DatasetAccess):
 #             #         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
 #             #     ),
 #             # ])
-#             self._transform = transform_default
+#             self._transform = TF_DEFAULT
 #         else:
 #             self._transform = transform
 #         self._dataset = ImageFolder(self._data_path, transform=self._transform)
@@ -176,7 +166,7 @@ class MultiAccess(DatasetAccess):
 #         self._domain = domain.upper()
 #         self._data_path = os.path.join(data_path, self._domain)
 #         if transform == 'default':
-#             self._transform = transform_default
+#             self._transform = TF_DEFAULT
 #         else:
 #             self._transform = transform
 #         # self._dataset = ImageFolder(data_path, transform=self._transform)

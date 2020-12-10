@@ -1,0 +1,8 @@
+DAN:
+  METHOD: 'CDAN'
+DATASET:
+  NAME: 'offic_caltech'
+  ROOT: '/shared/tale2/Shared/data/office/offic_caltech_10'
+  SOURCE: ['dslr', 'caltech', 'webcam']
+  TARGET: ['amazon']
+  NUM_REPEAT: 5
