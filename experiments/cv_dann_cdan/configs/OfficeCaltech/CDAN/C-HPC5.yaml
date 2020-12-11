@@ -1,7 +1,7 @@
 DAN:
   METHOD: 'CDAN'
 DATASET:
-  NAME: 'offic_caltech'
+  NAME: 'office_caltech'
   NUM_CLASSES: 10
   ROOT: '/shared/tale2/Shared/data/office/office_caltech_10'
   SOURCE: ['dslr', 'amazon', 'webcam']
