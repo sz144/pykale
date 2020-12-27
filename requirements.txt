@@ -27,4 +27,10 @@ ogb==1.2.0
 # torch-spline-conv==1.2.0
 torch-geometric==1.5.0
 
+# For MPCA
+scikit-learn
 
+# Need to specify version
+pytorch-lightning
+scikit-image
+tensorly

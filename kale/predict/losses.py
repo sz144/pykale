@@ -1,4 +1,4 @@
-"""Commonly used losses, from domain adaptation package
+"""Commonly used losses, from domain adaptation package 
 https://github.com/criteo-research/pytorch-ada/blob/master/adalib/ada/models/losses.py
 """
 
@@ -9,10 +9,10 @@ from torch.autograd import grad
 
 
 def cross_entropy_logits(linear_output, label, weights=None):
-    """Computes cross entropy with logits
+    """Computes cross entropy with logits 
     
     Examples:
-        See DANN, WDGRL, and MMD trainers in kale.pipeline.domain_adapter
+        See DANN, WDGRL, and MMD trainers in kale.pipeline.domain_adapter  
     """    
     
     class_output = F.log_softmax(linear_output, dim=1)
@@ -33,7 +33,7 @@ def entropy_logits(linear_output):
     """Computes entropy logits in CDAN with entropy conditioning (CDAN+E)
     
     Examples:
-        See CDANtrainer in kale.pipeline.domain_adapter
+        See CDANtrainer in kale.pipeline.domain_adapter  
     """    
     p = F.softmax(linear_output, dim=1)
     loss_ent = -torch.sum(p * (torch.log(p + 1e-5)), dim=1)
@@ -41,10 +41,10 @@ def entropy_logits(linear_output):
 
 
 def entropy_logits_loss(linear_output):
-    """Computes entropy logits loss in semi-supervised or few-shot domain adaptation
+    """Computes entropy logits loss in semi-supervised or few-shot domain adapatation
     
     Examples:
-        See FewShotDANNtrainer in kale.pipeline.domain_adapter
+        See FewShotDANNtrainer in kale.pipeline.domain_adapter  
     """    
     return torch.mean(entropy_logits(linear_output))
 
@@ -53,27 +53,10 @@ def gradient_penalty(critic, h_s, h_t):
     """Computes gradient penalty in Wasserstein distance guided representation learning
     
     Examples:
-        See WDGRLtrainer and WDGRLtrainerMod in kale.pipeline.domain_adapter
+        See WDGRLtrainer and WDGRLtrainerMod in kale.pipeline.domain_adapter  
     """
     
-    alpha = torch.rand(h_s.size(0), 1)
-    alpha = alpha.expand(h_s.size()).type_as(h_s)
-    try:
-        differences = h_t - h_s
-
-        interpolates = h_s + (alpha * differences)
-        interpolates = torch.cat((interpolates, h_s, h_t), dim=0).requires_grad_()
-
-        preds = critic(interpolates)
-        gradients = grad(
-            preds,
-            interpolates,
-            grad_outputs=torch.ones_like(preds),
-            retain_graph=True,
-            create_graph=True,
-        )[0]
         gradient_norm = gradients.norm(2, dim=1)
-        gradient_penalty = ((gradient_norm - 1) ** 2).mean()
     except:
         gradient_penalty = 0
 
