@@ -1,10 +1,14 @@
 DAN:
-  METHOD: 'CDAN'
+  METHOD: 'DANN'
 DATASET:
   NAME: 'officehome'
   ROOT: '/media/shuoz/MyDrive/data/OfficeHome'
   SOURCE: ['Art', 'Clipart', 'Product']
   TARGET: ['Real_World']
+  NUM_CLASSES: 65
   NUM_REPEAT: 5
+SOLVER:
+  TRAIN_BATCH_SIZE: 30
+  TEST_BATCH_SIZE: 30
 OUTPUT:
   ROOT: './output'

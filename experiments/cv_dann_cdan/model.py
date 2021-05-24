@@ -5,11 +5,12 @@ Define the learning model and configure training parameters.
 # Initial Date: 27 July 2020
 
 from copy import deepcopy
+
+import kale.pipeline.domain_adapter as domain_adapter
+
 # from kale.embed.image_cnn import SmallCNNFeature
 from kale.embed.image_cnn import ResNet50Feature
-from kale.predict.class_domain_nets import ClassNetSmallImage, \
-                                              DomainNetSmallImage
-import kale.pipeline.domain_adapter as domain_adapter
+from kale.predict.class_domain_nets import ClassNetSmallImage, DomainNetSmallImage
 
 
 def get_config(cfg):
@@ -33,19 +34,19 @@ def get_config(cfg):
                 "optim_params": {
                     "momentum": cfg.SOLVER.MOMENTUM,
                     "weight_decay": cfg.SOLVER.WEIGHT_DECAY,
-                    "nesterov": cfg.SOLVER.NESTEROV
-                }
-            }
+                    "nesterov": cfg.SOLVER.NESTEROV,
+                },
+            },
         },
         "data_params": {
             "dataset_group": cfg.DATASET.NAME,
             # "dataset_name": cfg.DATASET.SOURCE + '2' + cfg.DATASET.TARGET,
-            "dataset_name": 'rest2' + cfg.DATASET.TARGET[0],
+            "dataset_name": "rest2" + cfg.DATASET.TARGET[0],
             "source": cfg.DATASET.SOURCE,
             "target": cfg.DATASET.TARGET,
             "size_type": cfg.DATASET.SIZE_TYPE,
-            "weight_type": cfg.DATASET.WEIGHT_TYPE
-        }
+            "weight_type": cfg.DATASET.WEIGHT_TYPE,
+        },
     }
     return config_params
 
@@ -58,16 +59,16 @@ def get_model(cfg, dataset, num_channels=3):
     Args:
         cfg: A YACS config object.
         dataset: A multidomain dataset consisting of source and target datasets.
-        num_channels: The number of image channels.        
+        num_channels: The number of image channels.
     """
-    
+
     # setup feature extractor
     # feature_network = SmallCNNFeature(num_channels)
     feature_network = ResNet50Feature()
     # setup classifier
     feature_dim = feature_network.output_size()
     classifier_network = ClassNetSmallImage(feature_dim, cfg.DATASET.NUM_CLASSES)
-    
+
     method = domain_adapter.Method(cfg.DAN.METHOD)
     critic_input_size = feature_dim
     # setup critic network
@@ -82,7 +83,7 @@ def get_model(cfg, dataset, num_channels=3):
     train_params = config_params["train_params"]
     train_params_local = deepcopy(train_params)
     method_params = {}
-    if cfg.DAN.METHOD is 'CDAN':
+    if cfg.DAN.METHOD == "CDAN":
         method_params["use_random"] = cfg.DAN.USERANDOM
 
     # The following calls kale.loaddata.dataset_access for the first time
