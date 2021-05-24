@@ -1,0 +1,8 @@
+DAN:
+  METHOD: 'CDAN'
+DATASET:
+  NAME: 'officehome'
+  ROOT: '/shared/tale2/Shared/data/OfficeHome'
+  SOURCE: ['Real_World', 'Clipart', 'Product']
+  TARGET: ['Art']
+  NUM_REPEAT: 5

@@ -1,0 +1,7 @@
+DAN:
+  METHOD: 'CDAN'
+DATASET:
+  ROOT: '/shared/tale2/Shared/data/PACS/kfold'
+  SOURCE: ['art_painting', 'photo', 'sketch']
+  TARGET: ['cartoon']
+  NUM_REPEAT: 5

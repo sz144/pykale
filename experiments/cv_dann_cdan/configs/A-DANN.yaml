@@ -1,0 +1,6 @@
+DAN:
+  METHOD: 'DANN'
+DATASET:
+  ROOT: 'D:/ML_data/PACS/kfold'  # '/shared/tale2/Shared/data/PACS/raw'
+  SOURCE: ['cartoon', 'photo', 'sketch']
+  TARGET: ['art_painting']

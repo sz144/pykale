@@ -1,0 +1,12 @@
+DAN:
+  METHOD: 'DANN'
+DATASET:
+  NAME: 'officehome'
+  ROOT: '/shared/tale2/Shared/data/OfficeHome'
+  SOURCE: ['Real_World', 'Clipart', 'Product']
+  TARGET: ['Art']
+  NUM_CLASSES: 65
+  NUM_REPEAT: 5
+SOLVER:
+  TRAIN_BATCH_SIZE: 50
+  TEST_BATCH_SIZE: 50
