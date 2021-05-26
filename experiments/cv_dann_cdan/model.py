@@ -6,6 +6,9 @@ Define the learning model and configure training parameters.
 
 from copy import deepcopy
 
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import kale.pipeline.domain_adapter as domain_adapter
 
 # from kale.embed.image_cnn import SmallCNNFeature
