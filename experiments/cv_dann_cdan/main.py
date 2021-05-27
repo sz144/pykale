@@ -91,9 +91,9 @@ def main():
             logger=False,  # logger,
             # weights_summary='full',
             fast_dev_run=False,  # True,
-            limit_train_batches=0.003,
-            limit_val_batches=0.4,
-            limit_test_batches=0.003,
+            # limit_train_batches=0.003,
+            # limit_val_batches=0.4,
+            # limit_test_batches=0.003,
         )
 
         trainer.fit(model)

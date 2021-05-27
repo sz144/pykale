@@ -5,6 +5,7 @@ DATASET:
   ROOT: '/shared/tale2/Shared/data/OfficeHome'
   SOURCE: ['Art', 'Clipart', 'Product']
   TARGET: ['Real_World']
+  NUM_CLASSES: 65
   NUM_REPEAT: 5
 SOLVER:
   TRAIN_BATCH_SIZE: 90
