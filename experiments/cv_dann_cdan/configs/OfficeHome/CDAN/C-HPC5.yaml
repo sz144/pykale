@@ -6,3 +6,6 @@ DATASET:
   SOURCE: ['Real_World', 'Art', 'Product']
   TARGET: ['Clipart']
   NUM_REPEAT: 5
+SOLVER:
+  TRAIN_BATCH_SIZE: 90
+  TEST_BATCH_SIZE: 90

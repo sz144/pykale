@@ -16,7 +16,7 @@ _C = CN()
 # Dataset
 # -----------------------------------------------------------------------------
 _C.DATASET = CN()
-_C.DATASET.ROOT = "/shared/tale2/Shared/data/PACS/raw"  # 'D:/ML_data/PACS/kfold'  # '../data'  # '/shared/tale2/Shared'
+_C.DATASET.ROOT = "/shared/tale2/Shared/data/PACS/kfold"  # 'D:/ML_data/PACS/kfold'  # '../data'  # '/shared/tale2/Shared'
 _C.DATASET.NAME = "pacs"  # 'digits'  # dset choices=['office', 'image-clef', 'office-home']
 # _C.DATASET.SOURCE = 'mnist'  # s_dset_path  , help="The source dataset path list"
 # _C.DATASET.TARGET = 'usps'  # s_dset_path  , help="The target dataset path list"
