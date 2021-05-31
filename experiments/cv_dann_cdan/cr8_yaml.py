@@ -29,7 +29,7 @@ def mk_dir(dir_):
 
 
 data_list = ['OfficeCaltech', 'PACS', 'VLCS', 'OfficeHome']
-methods = ['DANN', 'CDAN']
+methods = ['DANN', 'CDAN', "DAN"]
 
 cfg_dir = './configs'
 mk_dir(cfg_dir)

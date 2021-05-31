@@ -51,9 +51,7 @@ def main():
     format_str = "@%(asctime)s %(name)s [%(levelname)s] - (%(message)s)"
     logging.basicConfig(format=format_str)
     # ---- setup dataset ----
-    num_channels = 3
-    # source = PACSAccess(cfg.DATASET.ROOT, cfg.DATASET.SOURCE[0])
-    # target = PACSAccess(cfg.DATASET.ROOT, cfg.DATASET.TARGET[0])
+    num_channels = 3   
     source = MultiAccess(cfg.DATASET.ROOT, cfg.DATASET.NAME, cfg.DATASET.SOURCE)
     target = MultiAccess(cfg.DATASET.ROOT, cfg.DATASET.NAME, cfg.DATASET.TARGET)
     # source, target, num_channels = DigitDataset.get_source_target(DigitDataset(cfg.DATASET.SOURCE.upper()),
