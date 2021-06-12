@@ -15,11 +15,7 @@ from torchvision.datasets import VisionDataset
 from torchvision.datasets.folder import default_loader, has_file_allowed_extension, IMG_EXTENSIONS
 
 from kale.loaddata.dataset_access import DatasetAccess, get_class_subset, split_by_ratios
-<<<<<<< HEAD
 from kale.loaddata.sampler import get_labels, MultiDataLoader, SamplingConfig, FixedSeedSamplingConfig
-=======
-from kale.loaddata.sampler import get_labels, MultiDataLoader, SamplingConfig
->>>>>>> 8a87ac27b5af4cc874baf4b2f5b16306ae6aa835
 
 
 class WeightingType(Enum):
