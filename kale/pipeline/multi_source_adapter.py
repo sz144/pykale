@@ -64,15 +64,19 @@ class BaseMultiSourceTrainer(BaseAdaptTrainer):
         dataset,
         feature_extractor,
         task_classifier,
-        target_label: int,
+        n_class: int,
+        target_domain: str,
         **base_params,
     ):
         super().__init__(dataset, feature_extractor, task_classifier, **base_params)
+        self.n_class = n_class
+        self.feature_dim = feature_extractor.output_size()
         self.domain_to_idx = dataset.domain_to_idx
-        if target_label not in self.domain_to_idx.values():
-            raise ValueError("The given target label %s not in the given dataset! The available domain labels are %s"
-                             % self.domain_to_idx.values())
-        self.target_label = target_label
+        if target_domain not in self.domain_to_idx.keys():
+            raise ValueError("The given target label %s not in the given dataset! The available domains are %s"
+                             % str(self.domain_to_idx.keys()))
+        self.target_domain = target_domain
+        self.target_label = self.domain_to_idx[target_domain]
 
     def forward(self, x):
         if self.feat is not None:
@@ -111,7 +115,8 @@ class M3SDATrainer(BaseMultiSourceTrainer):
         dataset,
         feature_extractor,
         task_classifier,
-        target_label: int,
+        n_class: int,
+        target_domain: str,
         k_moment: int = 5,
         **base_params,
     ):
@@ -122,12 +127,13 @@ class M3SDATrainer(BaseMultiSourceTrainer):
             Moment matching for multi-source domain adaptation. In Proceedings of the
             IEEE/CVF International Conference on Computer Vision (pp. 1406-1415).
         """
-        super().__init__(dataset, feature_extractor, task_classifier, target_label, **base_params)
-
+        super().__init__(dataset, feature_extractor, task_classifier, n_class, target_domain, **base_params)
         self.classifiers = dict()
-        for domain_label_ in self.domain_to_idx.values():
-            if domain_label_ != target_label:
-                self.classifiers[domain_label_] = task_classifier
+        for domain_ in self.domain_to_idx.keys():
+            if domain_!= target_domain:
+                self.classifiers[domain_] = task_classifier(self.feature_dim, self.n_class)
+        # init modules with nn.ModuleDict
+        self.classifiers = nn.ModuleDict(self.classifiers)
         self.k_moment = k_moment
 
     def compute_loss(self, batch, split_name="V"):
@@ -164,7 +170,9 @@ class M3SDATrainer(BaseMultiSourceTrainer):
                 if domain_label_ == self.target_label:
                     continue
                 domain_idx = torch.where(domain_labels == domain_label_)
-                cls_output = self.classifiers[domain_label_](x[domain_idx])
+                # get domain name by domain label
+                src_domain = list(self.domain_to_idx.keys())[list(self.domain_to_idx.values()).index(domain_label_)]
+                cls_output = self.classifiers[src_domain](x[domain_idx])
                 loss_cls_, ok_src_ = losses.cross_entropy_logits(cls_output, y[domain_idx])
                 cls_loss += loss_cls_
                 ok_src.append(ok_src_)
@@ -194,20 +202,22 @@ class M3SDATrainer(BaseMultiSourceTrainer):
 
 class DINTrainer(BaseMultiSourceTrainer):
     def __init__(
-        self, dataset, feature_extractor, task_classifier, target_label: int, kernel: str = "linear",
+        self, dataset, feature_extractor, task_classifier, n_class: int, target_domain: str, kernel: str = "linear",
         kernel_mul: float = 2.0, kernel_num: int = 5, **base_params,
     ):
         """Domain independent network. 
 
         """
-        super().__init__(dataset, feature_extractor, task_classifier, target_label, **base_params)
+        super().__init__(dataset, feature_extractor, task_classifier, n_class, target_domain, **base_params)
         self.kernel = kernel
         self.n_domains = len(self.domain_to_idx.values())
         self._kernel_mul = kernel_mul
         self._kernel_num = kernel_num
+        self.classifier = task_classifier(self.feature_dim, self.n_class)
 
     def compute_loss(self, batch, split_name="V"):
         x, y, domain_labels = batch
+        # domain_labels = domain_labels.int()
         phi_x = self.forward(x)
         loss_dist = self._compute_domain_dist(phi_x, domain_labels)
         src_idx = torch.where(domain_labels != self.target_label)
@@ -231,6 +241,7 @@ class DINTrainer(BaseMultiSourceTrainer):
         else:
             raise ValueError("Other kernels have not been implemented yet!")
         domain_label_mat = one_hot(domain_labels, num_classes=self.n_domains)
+        domain_label_mat = domain_label_mat.float()
         ky = torch.mm(domain_label_mat, domain_label_mat.T)
         return losses.hsic(kx, ky)
 

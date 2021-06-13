@@ -132,6 +132,7 @@ def hsic(kx, ky):
     if ky.shape[0] != n:
         raise ValueError("kx and ky are expected to have the same sample sizes.")
     ctr_mat = torch.eye(n) - torch.ones((n, n)) / n
+    ctr_mat = ctr_mat.float()
     return torch.trace(torch.mm(torch.mm(torch.mm(kx, ctr_mat), ky), ctr_mat)) / (n ** 2)
 
 
