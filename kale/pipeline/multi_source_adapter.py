@@ -92,7 +92,7 @@ class BaseMultiSourceTrainer(BaseAdaptTrainer):
             "val_loss",
             "V_source_acc",
             "V_target_acc",
-            "V_domain_dist",
+            "V_domain_acc",
         )
         return self._validation_epoch_end(outputs, metrics_to_log)
 
@@ -101,7 +101,7 @@ class BaseMultiSourceTrainer(BaseAdaptTrainer):
             "test_loss",
             "Te_source_acc",
             "Te_target_acc",
-            "Te_domain_dist",
+            "Te_domain_acc",
         )
         log_dict = get_aggregated_metrics(metrics_at_test, outputs)
 
@@ -153,7 +153,7 @@ class M3SDATrainer(BaseMultiSourceTrainer):
         log_metrics = {
             f"{split_name}_source_acc": ok_src,
             f"{split_name}_target_acc": ok_tgt,
-            f"{split_name}_domain_dist": moment_loss,
+            f"{split_name}_domain_acc": moment_loss,
         }
 
         return task_loss, moment_loss, log_metrics
@@ -230,7 +230,7 @@ class DINTrainer(BaseMultiSourceTrainer):
         log_metrics = {
             f"{split_name}_source_acc": ok_src,
             f"{split_name}_target_acc": ok_tgt,
-            f"{split_name}_domain_dist": loss_dist,
+            f"{split_name}_domain_acc": loss_dist,
         }
 
         return task_loss, loss_dist, log_metrics
@@ -243,7 +243,7 @@ class DINTrainer(BaseMultiSourceTrainer):
         domain_label_mat = one_hot(domain_labels, num_classes=self.n_domains)
         domain_label_mat = domain_label_mat.float()
         ky = torch.mm(domain_label_mat, domain_label_mat.T)
-        return losses.hsic(kx, ky)
+        return losses.hsic(kx, ky, device=self.device)
 
 
 class MFSANTrainer(BaseMultiSourceTrainer):
@@ -300,7 +300,7 @@ class MFSANTrainer(BaseMultiSourceTrainer):
         log_metrics = {
             f"{split_name}_source_acc": ok_src,
             f"{split_name}_target_acc": ok_tgt,
-            f"{split_name}_domain_dist": mmd_dist,
+            f"{split_name}_domain_acc": mmd_dist,
         }
 
         return task_loss, mmd_dist, log_metrics
