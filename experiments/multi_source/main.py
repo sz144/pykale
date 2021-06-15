@@ -52,7 +52,7 @@ def main():
     print(cfg)
 
     # ---- setup output ----
-    outdir = os.path.join(cfg.OUTPUT.ROOT, cfg.DATASET.NAME + "_rest2" + cfg.DATASET.TARGET[0])
+    outdir = os.path.join(cfg.OUTPUT.ROOT, cfg.DATASET.NAME + "_rest2" + cfg.DATASET.TARGET)
     # os.makedirs(cfg.OUTPUT.DIR, exist_ok=True)
     os.makedirs(outdir, exist_ok=True)
     format_str = "@%(asctime)s %(name)s [%(levelname)s] - (%(message)s)"
@@ -63,11 +63,11 @@ def main():
         transform = get_transform("office")
     else:
         transform = TF_DEFAULT
-    dataset = MultiDomainAdapDataset(MultiDomainImageFolder(cfg.DATASET.ROOT, transform=transform, return_domain_label=True))    
-
+    
     # Repeat multiple times to get std
     for i in range(0, cfg.DATASET.NUM_REPEAT):
         seed = cfg.SOLVER.SEED + i * 10
+        dataset = MultiDomainAdapDataset(MultiDomainImageFolder(cfg.DATASET.ROOT, transform=transform, return_domain_label=True), random_state=seed)    
         set_seed(seed)  # seed_everything in pytorch_lightning did not set torch.backends.cudnn
         print(f"==> Building model for seed {seed} ......")
         # ---- setup model and logger ----
@@ -92,9 +92,6 @@ def main():
             logger=False,  # logger,
             # weights_summary='full',
             fast_dev_run=False,  # True,
-            # limit_train_batches=0.003,
-            # limit_val_batches=0.4,
-            # limit_test_batches=0.003,
         )
 
         trainer.fit(model)

@@ -1,8 +1,0 @@
-DAN:
-  METHOD: 'CDAN'
-DATASET:
-  NAME: 'vlcs'
-  ROOT: '/shared/tale2/Shared/data/VLCS'
-  SOURCE: ['CALTECH', 'PASCAL', 'SUN']
-  TARGET: ['LABELME']
-  NUM_REPEAT: 5
