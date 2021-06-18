@@ -94,6 +94,8 @@ class Method(Enum):
     WDGRLMod = "WDGRLMod"
     DAN = "DAN"  # Deep Adaptation Networks
     JAN = "JAN"  # Joint Adaptation Networks
+    M3SDA = "M3SDA"
+    DIN = "DIN"
 
     def is_mmd_method(self):
         return self in (Method.DAN, Method.JAN)
@@ -109,6 +111,9 @@ class Method(Enum):
 
     def allow_supervised(self):
         return self.is_fewshot_method()
+    
+    def is_multi_source(self):
+        return self in (Method.M3SDA, Method.DIN)
 
 
 def create_mmd_based(method: Method, dataset, feature_extractor, task_classifier, **train_params):

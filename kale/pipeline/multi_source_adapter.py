@@ -11,16 +11,16 @@ from torch.nn.functional import one_hot
 import kale.predict.losses as losses
 
 # from kale.loaddata.multi_domain import MultiDomainAdapDataset
-from kale.pipeline.domain_adapter import BaseAdaptTrainer, get_aggregated_metrics
+from kale.pipeline.domain_adapter import BaseAdaptTrainer, get_aggregated_metrics, Method
 
 
-def create_ms_adapt_trainer(method: str, dataset, feature_extractor, task_classifier, **train_params):
-    method_dict = {"M3SDA": M3SDATrainer, "DIN": DINTrainer, "M": MFSANTrainer}
-    method = method.upper()
-    if method not in method_dict.keys():
-        raise ValueError("Unsupported multi-source domain adaptation methods %s" % method)
-    else:
-        return method_dict[method](dataset, feature_extractor, task_classifier, **train_params)
+def create_ms_adapt_trainer(method: Method, dataset, feature_extractor, task_classifier, **train_params):
+    method_dict = {Method.M3SDA: M3SDATrainer, Method.DIN: DINTrainer, "M": MFSANTrainer}
+    # method = method.upper()
+    # if method not in method_dict.keys():
+    #     raise ValueError("Unsupported multi-source domain adaptation methods %s" % method)
+    # else:
+    return method_dict[method](dataset, feature_extractor, task_classifier, **train_params)
 
 
 def _moment_k(x: torch.Tensor, domain_labels: torch.Tensor, k_order=2):
@@ -213,18 +213,32 @@ class DINTrainer(BaseMultiSourceTrainer):
         self.n_domains = len(self.domain_to_idx.values())
         self._kernel_mul = kernel_mul
         self._kernel_num = kernel_num
+        # self.classifiers = dict()
+        # for domain_ in self.domain_to_idx.keys():
+        #     if domain_!= target_domain:
+        #         self.classifiers[domain_] = task_classifier(self.feature_dim, self.n_class)
+        # # init modules with nn.ModuleDict
+        # self.classifiers = nn.ModuleDict(self.classifiers)
         self.classifier = task_classifier(self.feature_dim, self.n_class)
 
     def compute_loss(self, batch, split_name="V"):
         x, y, domain_labels = batch
         # domain_labels = domain_labels.int()
         phi_x = self.forward(x)
-        loss_dist = self._compute_domain_dist(phi_x, domain_labels)
+        # loss_dist = self._compute_domain_dist(phi_x, domain_labels)
         src_idx = torch.where(domain_labels != self.target_label)
         tgt_idx = torch.where(domain_labels == self.target_label)
         cls_output = self.classifier(phi_x)
+        loss_dist = self._compute_domain_dist(cls_output, domain_labels)
+        
         loss_cls, ok_src = losses.cross_entropy_logits(cls_output[src_idx], y[src_idx])
         _, ok_tgt = losses.cross_entropy_logits(cls_output[tgt_idx], y[tgt_idx])
+        # loss_cls, ok_src = self._compute_cls_loss(phi_x[src_idx], y[src_idx], domain_labels[src_idx])
+        # if len(tgt_idx) > 0:
+        #     y_tgt_hat = average_cls_output(phi_x[tgt_idx], self.classifiers)
+        #     _, ok_tgt = losses.cross_entropy_logits(y_tgt_hat, y[tgt_idx])
+        # else:
+        #     ok_tgt = 0.0
 
         task_loss = loss_cls
         log_metrics = {
@@ -244,6 +258,28 @@ class DINTrainer(BaseMultiSourceTrainer):
         domain_label_mat = domain_label_mat.float()
         ky = torch.mm(domain_label_mat, domain_label_mat.T)
         return losses.hsic(kx, ky, device=self.device)
+
+    # def _compute_cls_loss(self, x, y, domain_labels: torch.Tensor):
+    #     if len(y) == 0:
+    #         return 0.0, 0.0
+    #     else:
+    #         unique_domain_ = torch.unique(domain_labels).squeeze().tolist()
+    #         cls_loss = 0.0
+    #         ok_src = []
+    #         n_src = len(unique_domain_)
+    #         for domain_label_ in unique_domain_:
+    #             if domain_label_ == self.target_label:
+    #                 continue
+    #             domain_idx = torch.where(domain_labels == domain_label_)
+    #             # get domain name by domain label
+    #             src_domain = list(self.domain_to_idx.keys())[list(self.domain_to_idx.values()).index(domain_label_)]
+    #             cls_output = self.classifiers[src_domain](x[domain_idx])
+    #             loss_cls_, ok_src_ = losses.cross_entropy_logits(cls_output, y[domain_idx])
+    #             cls_loss += loss_cls_
+    #             ok_src.append(ok_src_)
+    #         cls_loss = cls_loss / n_src
+    #         ok_src = torch.cat(ok_src)
+    #         return cls_loss, ok_src
 
 
 class MFSANTrainer(BaseMultiSourceTrainer):

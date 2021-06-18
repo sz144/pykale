@@ -9,7 +9,8 @@ from copy import deepcopy
 import os
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-import kale.pipeline.multi_source_adapter as domain_adapter
+from kale.pipeline.domain_adapter import Method
+import kale.pipeline.multi_source_adapter as multi_source_adapter
 
 # from kale.embed.image_cnn import SmallCNNFeature
 from kale.embed.image_cnn import ResNet50Feature
@@ -82,9 +83,9 @@ def get_model(cfg, dataset, num_channels):
     # target_label = dataset.domain_to_idx[cfg.DATASET.TARGET]
     method_params = {"n_class": cfg.DATASET.NUM_CLASSES, "target_domain": cfg.DATASET.TARGET}
 
-    method = cfg.DAN.METHOD
+    method = Method(cfg.DAN.METHOD)
 
-    model = domain_adapter.create_ms_adapt_trainer(
+    model = multi_source_adapter.create_ms_adapt_trainer(
         method=method,
         dataset=dataset,
         feature_extractor=feature_network,
