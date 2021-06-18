@@ -1095,7 +1095,7 @@ class DANtrainer(BaseMMDLike):
 
     def _compute_mmd(self, phi_s, phi_t, y_hat, y_t_hat):
         batch_size = int(phi_s.size()[0])
-        kernels = losses.gaussian_kernel(phi_s, phi_t, kernel_mul=self._kernel_mul, kernel_num=self._kernel_num,)
+        kernels = losses.gaussian_kernel([phi_s, phi_t], kernel_mul=self._kernel_mul, kernel_num=self._kernel_num,)
         return losses.compute_mmd_loss(kernels, batch_size)
 
 
@@ -1126,7 +1126,7 @@ class JANtrainer(BaseMMDLike):
         for source, target, k_mul, k_num, sigma in zip(
             source_list, target_list, self._kernel_mul, self._kernel_num, [None, 1.68]
         ):
-            kernels = losses.gaussian_kernel(source, target, kernel_mul=k_mul, kernel_num=k_num, fix_sigma=sigma)
+            kernels = losses.gaussian_kernel([source, target], kernel_mul=k_mul, kernel_num=k_num, fix_sigma=sigma)
             if joint_kernels is not None:
                 joint_kernels = joint_kernels * kernels
             else:

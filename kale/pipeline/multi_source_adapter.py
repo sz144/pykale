@@ -52,7 +52,7 @@ def _moment_k(x: torch.Tensor, domain_labels: torch.Tensor, k_order=2):
     return moment_sum / n_pair
 
 
-def average_cls_output(x, classifiers: Dict[int, Any]):
+def average_cls_output(x, classifiers):
     cls_output = [classifiers[key](x) for key in classifiers]
     cls_output = torch.stack(cls_output)
     return cls_output.mean(0)
@@ -130,7 +130,7 @@ class M3SDATrainer(BaseMultiSourceTrainer):
         super().__init__(dataset, feature_extractor, task_classifier, n_class, target_domain, **base_params)
         self.classifiers = dict()
         for domain_ in self.domain_to_idx.keys():
-            if domain_!= target_domain:
+            if domain_ != target_domain:
                 self.classifiers[domain_] = task_classifier(self.feature_dim, self.n_class)
         # init modules with nn.ModuleDict
         self.classifiers = nn.ModuleDict(self.classifiers)
@@ -252,6 +252,8 @@ class DINTrainer(BaseMultiSourceTrainer):
     def _compute_domain_dist(self, x, domain_labels):
         if self.kernel == "linear":
             kx = torch.mm(x, x.T)
+        elif self.kernel == "gaussian":
+            kx = losses.gaussian_kernel([x], kernel_mul=self._kernel_mul, kernel_num=self._kernel_num)
         else:
             raise ValueError("Other kernels have not been implemented yet!")
         domain_label_mat = one_hot(domain_labels, num_classes=self.n_domains)
