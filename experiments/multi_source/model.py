@@ -14,7 +14,7 @@ import kale.pipeline.multi_source_adapter as multi_source_adapter
 
 # from kale.embed.image_cnn import SmallCNNFeature
 from kale.embed.image_cnn import ResNet50Feature
-from kale.predict.class_domain_nets import ClassNetSmallImage, DomainNetSmallImage
+from kale.predict.class_domain_nets import ClassNetSmallImage
 
 
 def get_config(cfg):
@@ -75,7 +75,6 @@ def get_model(cfg, dataset, num_channels):
     # for domain_label_ in dataset.domain_to_idx.values():
     #     if domain_label_ != target_label:
     #         classifier_networks[domain_label_] = ClassNetSmallImage(feature_dim, cfg.DATASET.NUM_CLASSES)
-
 
     config_params = get_config(cfg)
     train_params = config_params["train_params"]

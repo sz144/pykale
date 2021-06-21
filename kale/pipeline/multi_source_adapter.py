@@ -3,8 +3,6 @@
 #         Haiping Lu, h.lu@sheffield.ac.uk or hplu@ieee.org
 # =============================================================================
 
-from typing import Any, Dict
-
 import torch
 import torch.nn as nn
 from torch.nn.functional import one_hot
@@ -118,6 +116,7 @@ class M3SDATrainer(BaseMultiSourceTrainer):
         n_class: int,
         target_domain: str,
         k_moment: int = 5,
+        div_metric: str = "moment",
         **base_params,
     ):
         """Moment matching for multi-source domain adaptation. 
@@ -134,6 +133,7 @@ class M3SDATrainer(BaseMultiSourceTrainer):
                 self.classifiers[domain_] = task_classifier(self.feature_dim, self.n_class)
         # init modules with nn.ModuleDict
         self.classifiers = nn.ModuleDict(self.classifiers)
+        self.div_metric = div_metric
         self.k_moment = k_moment
 
     def compute_loss(self, batch, split_name="V"):
@@ -192,17 +192,30 @@ class M3SDATrainer(BaseMultiSourceTrainer):
         """
 
         # moment_loss = _moment_k(x, domain_label, 1)
-        moment_loss = 0
-        # print(reg_info)
-        for i in range(self.k_moment):
-            moment_loss += _moment_k(x, domain_labels, i + 1)
+        dist_loss = 0
+        if self.div_metric == "moment":
+            # moment_loss = 0
+            # print(reg_info)
+            for i in range(self.k_moment):
+                dist_loss += _moment_k(x, domain_labels, i + 1)
 
-        return moment_loss
+        # elif self.div_metric == "mmd":
+        #     unique_domain_ = torch.unique(domain_labels)
+        #     n_unique_domain_ = len(unique_domain_)
+        #     for i in range(n_unique_domain_ - 1):
+        #         for j in range(i+1, n_unique_domain_):
+        #             idx_domain_i = torch.where(domain_labels != domain_labels[i])
+        #             idx_domain_j = torch.where(domain_labels != domain_labels[j])
+        #             x_i = x[idx_domain_i]
+        #             x_j = x[idx_domain_j]
+        #             kernel_val = losses.gaussian_kernel([x_i, x_j])
+
+        return dist_loss
 
 
 class DINTrainer(BaseMultiSourceTrainer):
     def __init__(
-        self, dataset, feature_extractor, task_classifier, n_class: int, target_domain: str, kernel: str = "linear",
+        self, dataset, feature_extractor, task_classifier, n_class: int, target_domain: str, kernel: str = "gaussian",
         kernel_mul: float = 2.0, kernel_num: int = 5, **base_params,
     ):
         """Domain independent network. 
@@ -225,11 +238,11 @@ class DINTrainer(BaseMultiSourceTrainer):
         x, y, domain_labels = batch
         # domain_labels = domain_labels.int()
         phi_x = self.forward(x)
-        # loss_dist = self._compute_domain_dist(phi_x, domain_labels)
+        loss_dist = self._compute_domain_dist(phi_x, domain_labels)
         src_idx = torch.where(domain_labels != self.target_label)
         tgt_idx = torch.where(domain_labels == self.target_label)
         cls_output = self.classifier(phi_x)
-        loss_dist = self._compute_domain_dist(cls_output, domain_labels)
+        # loss_dist = self._compute_domain_dist(cls_output, domain_labels)
         
         loss_cls, ok_src = losses.cross_entropy_logits(cls_output[src_idx], y[src_idx])
         _, ok_tgt = losses.cross_entropy_logits(cls_output[tgt_idx], y[tgt_idx])
